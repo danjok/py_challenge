@@ -2,10 +2,12 @@ __author__ = 'dani'
 import pandas as pd
 from Timer import Timer
 from config import getFilePath
+from GeoBases import GeoBase
 
+geo_o = GeoBase(data='ori_por', verbose=False)
 cols = ['year', 'arr_port', 'pax']
 with Timer() as t:
-    data = pd.read_csv(getFilePath('bookings', '6'), sep='^', error_bad_lines=False, warn_bad_lines=True, usecols=cols)
+    data = pd.read_csv(getFilePath('bookings', '2'), sep='^', error_bad_lines=False, warn_bad_lines=True, usecols=cols)
     l = len(data)
 print("=> read: %s s" % t.secs)
 print l
@@ -34,7 +36,9 @@ with Timer() as t:
     groups = filtered_data.groupby('arr_port')
     result = groups[['pax']].sum().sort('pax', ascending = False)
 print "=> top computation - 2: %s s" % t.secs
-#print result[:10]
+topN = result[:10]
+for index, row in topN.iterrows():
+     print '%s %d' % (geo_o.get(index.strip(), 'name'), row['pax'])
 
 #Method 3
 #use the arr_port as index on rows for the pax Series
@@ -44,4 +48,3 @@ with Timer() as t:
     result = groups.sum().sort('pax', ascending = False)
 print "=> top computation - 3: %s s" % t.secs
 #print result[:10]
-

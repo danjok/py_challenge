@@ -11,18 +11,28 @@ print("=> read: %s s" % t.secs)
 print l
 print data.columns
 
-#TODO groupby destination, year, month and then count
-#new_column with YY-MM
-#one plot for each destination
-
 #Madrid MAD
 #Malaga AGP
 #Barcelona BCN
 codes = ['MAD','AGP','BCN']
-for code in codes:
-    with Timer() as t:
-        filtered = data[data['Destination'] == code]
-        filtered_with_index = filtered.set_index('Date')
-        res = filtered_with_index.groupby(lambda x : x[:7]).count()
-    print "=> mean - 1: %s s" % t.secs
-    print res
+
+res = pd.DataFrame({})
+with Timer() as t:
+    for code in codes:
+        data_per_city = data[data['Destination'] == code]
+        filtered_with_index = data_per_city.set_index('Date')
+        res[code] = filtered_with_index.groupby(lambda x : x[:7]).count()['Destination']
+print "=> Time: %s s" % t.secs
+print res
+
+res = pd.DataFrame({})
+with Timer() as t:
+    for code in codes:
+        data_per_city = data[data['Destination'] == code]
+        daily = data_per_city.groupby(['Date']).count()
+        monthly = daily.groupby(lambda x : x[:7]).sum()
+        res[code] = monthly['Destination']
+print "=> Time: %s s" % t.secs
+print res
+
+

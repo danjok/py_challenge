@@ -37,8 +37,14 @@ with Timer() as t:
     result = groups[['pax']].sum().sort('pax', ascending = False)
 print "=> top computation - 2: %s s" % t.secs
 topN = result[:10]
-for index, row in topN.iterrows():
-     print '%s %d' % (geo_o.get(index.strip(), 'name'), row['pax'])
+
+d = result.reset_index()
+d['name'] = d['arr_port'].apply(lambda s: geo_o.get(s.strip(), 'name'))
+print d[:10]
+
+print 'JSON output'
+print d.to_json(orient='index')
+#Ok write
 
 #Method 3
 #use the arr_port as index on rows for the pax Series
@@ -48,3 +54,8 @@ with Timer() as t:
     result = groups.sum().sort('pax', ascending = False)
 print "=> top computation - 3: %s s" % t.secs
 #print result[:10]
+
+#TODO use a visual map for geo-positioning
+#TODO web services
+#http://pandas.pydata.org/pandas-docs/stable/io.html#io-json-writer
+
